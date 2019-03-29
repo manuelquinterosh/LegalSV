@@ -3,6 +3,8 @@ package com.developer.manuelquinteros.legalsv;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -111,9 +113,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
     private void launchHomeScreen() {
+
         preferenceManager.setFirstTimeLaunch(false);
         startActivity(new Intent(MainActivity.this, MenuActivity.class));
         finish();
+
     }
 
     //Viewpager change listener

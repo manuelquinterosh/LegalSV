@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -16,7 +19,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.Toast;
 
 import com.developer.manuelquinteros.legalsv.CustomItemClickListener;
 import com.developer.manuelquinteros.legalsv.Model.Menu;
@@ -44,11 +46,14 @@ public class CodesActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
 
     private ProgressDialog progressDialog;
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_codes);
+
+        view = findViewById(R.id.noInternetCodes);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCodes);
         setSupportActionBar(toolbar);
@@ -57,12 +62,57 @@ public class CodesActivity extends AppCompatActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.list_books_codes);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(CodesActivity.FB_DATABASE_PATH_CODES);
+        progressDialog = new ProgressDialog(this);
 
         mContext = CodesActivity.this;
 
         listCodes = new ArrayList<>();
 
+        new AsyncConnectTask().execute();
+
+
+    }
+
+
+    public class AsyncConnectTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.setTitle("Cargando..");
+            progressDialog.setMessage("Preparando los Codigos");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+
+            //Ejecutas tu método para comprobar conexión, el cual regresa un valor boleano.
+            return isOnline(CodesActivity.this);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isAvalable) {
+            //Se recibe el valor boleano del método doInBackground().
+            // Se puede abrir el Dialogo en el Thread principal.
+
+            if (!isAvalable) {
+                view.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+
+            } else {
+                view.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                //....hago otra cosa
+               codesBooks();
+                initCollapsingToolbar();
+            }
+        }
+    }
+
+
+    private void codesBooks(){
+        mDatabase = FirebaseDatabase.getInstance().getReference(CodesActivity.FB_DATABASE_PATH_CODES);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -95,8 +145,6 @@ public class CodesActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         });
-
-        initCollapsingToolbar();
     }
 
     /**
@@ -178,7 +226,9 @@ public class CodesActivity extends AppCompatActivity {
     }
 
 
-    private void showError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 }

@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -45,6 +48,8 @@ public class LawsActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private View view;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,18 +60,59 @@ public class LawsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        view = findViewById(R.id.noInternetLaws);
+
         recyclerView = (RecyclerView) findViewById(R.id.list_books_laws);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please wait loading lis potrait...");
-        progressDialog.show();
-
-        mDatabase = FirebaseDatabase.getInstance().getReference(LawsActivity.FB_DATABASE_PATH_LAWS);
 
         mContext = LawsActivity.this;
 
         listCodes = new ArrayList<>();
 
+
+
+        new AsyncConnectTask().execute();
+    }
+
+    public class AsyncConnectTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.setTitle("Cargando..");
+            progressDialog.setMessage("Preparando Leyes");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+
+            //Ejecutas tu método para comprobar conexión, el cual regresa un valor boleano.
+            return isOnline(LawsActivity.this);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isAvalable) {
+            //Se recibe el valor boleano del método doInBackground().
+            // Se puede abrir el Dialogo en el Thread principal.
+
+            if (!isAvalable) {
+                view.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+
+            } else {
+                view.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                //....hago otra cosa
+                 booksLaws();
+                initCollapsingToolbar();
+            }
+        }
+    }
+
+    private void booksLaws(){
+        mDatabase = FirebaseDatabase.getInstance().getReference(LawsActivity.FB_DATABASE_PATH_LAWS);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -97,8 +143,6 @@ public class LawsActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         });
-
-        initCollapsingToolbar();
     }
 
     /**
@@ -177,5 +221,11 @@ public class LawsActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         Resources r = getResources();
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 }

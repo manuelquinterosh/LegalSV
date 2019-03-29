@@ -15,4 +15,52 @@
         android:scrollbars="vertical"
         tools:listitem="@layout/cardview_item"/>
 
+    <LinearLayout
+        android:id="@+id/noInternetLaws"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:visibility="invisible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imReload"
+            android:src="@drawable/no_connection"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/reload_message_1"
+            android:id="@+id/tvReloadMess1"
+            android:layout_below="@+id/imReload"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textSize="45sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/colorPrimary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/reload_message_2"
+            android:id="@+id/tvReloadMess2"
+            android:layout_below="@+id/tvReloadMess1"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textSize="24sp"
+            android:textColor="@color/colorPrimary" />
+
+    </LinearLayout>
+
+
 </RelativeLayout>

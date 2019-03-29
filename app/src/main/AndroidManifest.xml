@@ -10,37 +10,34 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/icon_lawyer"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/icon_lawyer"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".books.LawsActivity"
-                  android:parentActivityName=".MenuActivity">
+        <activity
+            android:name=".books.LawsActivity"
+            android:parentActivityName=".MenuActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MenuActivity" />
         </activity>
-
         <activity android:name=".ShowBookActivity" />
-
-        <activity android:name=".books.CodesActivity"
-                  android:parentActivityName=".MenuActivity">
+        <activity
+            android:name=".books.CodesActivity"
+            android:parentActivityName=".MenuActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MenuActivity" />
         </activity>
-
-        <activity android:name=".books.ConstitutionsActivity"
-                  android:parentActivityName=".MenuActivity">
+        <activity
+            android:name=".books.ConstitutionsActivity"
+            android:parentActivityName=".MenuActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MenuActivity" />
         </activity>
-
-        <activity android:name=".MenuActivity">
-        </activity>
+        <activity android:name=".MenuActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

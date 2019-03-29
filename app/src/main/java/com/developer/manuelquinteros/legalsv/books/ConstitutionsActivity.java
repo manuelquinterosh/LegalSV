@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -44,29 +47,72 @@ public class ConstitutionsActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private View view;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_constitutions);
 
+        view = findViewById(R.id.noInternetConstitutions);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarConstitution);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
         recyclerView = (RecyclerView) findViewById(R.id.list_books_constitution);
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please wait loading lis potrait...");
-        progressDialog.show();
-
-        mDatabase = FirebaseDatabase.getInstance().getReference(ConstitutionsActivity.FB_DATABASE_PATH);
 
         mContext = ConstitutionsActivity.this;
 
         listConstitution = new ArrayList<>();
 
 
+        new AsyncConnectTask().execute();
+
+    }
+
+    public class AsyncConnectTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.setTitle("Cargando..");
+            progressDialog.setMessage("Preparando las Constituciones");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+
+            //Ejecutas tu método para comprobar conexión, el cual regresa un valor boleano.
+            return isOnline(ConstitutionsActivity.this);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isAvalable) {
+            //Se recibe el valor boleano del método doInBackground().
+            // Se puede abrir el Dialogo en el Thread principal.
+
+            if (!isAvalable) {
+                view.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                view.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                //....hago otra cosa
+                ConstitutionsMenu();
+                initCollapsingToolbar();
+            }
+        }
+    }
+
+
+    private void ConstitutionsMenu(){
+        mDatabase = FirebaseDatabase.getInstance().getReference(ConstitutionsActivity.FB_DATABASE_PATH);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -97,11 +143,7 @@ public class ConstitutionsActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         });
-
-        initCollapsingToolbar();
     }
-
-
 
 
 
@@ -181,5 +223,11 @@ public class ConstitutionsActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         Resources r = getResources();
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 }

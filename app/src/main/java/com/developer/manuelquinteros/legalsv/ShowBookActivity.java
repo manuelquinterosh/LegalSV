@@ -48,7 +48,6 @@ public class ShowBookActivity extends AppCompatActivity {
         extras = getIntent().getExtras();
 
         String title = extras.getString("title");
-        //textView.setText(title);
 
         DatabaseReference mref = database.getReference("pdf_constitucion").child(title);
 
@@ -115,11 +114,5 @@ public class ShowBookActivity extends AppCompatActivity {
 //Quita el super y has un finish() a la actividad o bien replanteate bien lo que quieres hacer cuando se presione hacia atrás.
 
     }
-    //https://developers.foxitsoftware.com/kb/article/developer-guide-foxit-pdf-sdk-for-mobile-android/
 
-    private boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
 }
